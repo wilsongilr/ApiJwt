@@ -7,15 +7,14 @@ namespace ApiJwt.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EmployeeController : ControllerBase
+    public class ProductController : ControllerBase
     {
         [HttpGet]
-        [Authorize(Roles ="Administrador")]
-        public IActionResult Get() 
+        [Authorize]
+        public IActionResult Get()
         {
-            var listEmployee = EmployeeConstants.Employees;
-
-            return Ok(listEmployee);
+            var Listproducts = ProductConstants.products;
+            return Ok(Listproducts);
         }
     }
 }
