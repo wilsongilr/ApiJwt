@@ -1,9 +1,8 @@
 ﻿using ApiJwt.Constans;
 using ApiJwt.Models;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -23,6 +22,19 @@ namespace ApiJwt.Controllers
             _configuration = configuration;
         }
 
+        [HttpGet]
+
+        public IActionResult Get() 
+        {
+            var currentUser = GetCurrentUser();
+            return Ok($"Hola { currentUser.FirstName }, tu eres un { currentUser.Rol }");
+        }
+
+       /// <summary>
+       /// Metodo encargado de realizar la autenticación
+       /// </summary>
+       /// <param name="userlogin"></param>
+       /// <returns></returns>
         [HttpPost]
 
         public IActionResult login(LoginUser userlogin)
@@ -69,6 +81,27 @@ namespace ApiJwt.Controllers
 
         }
 
+        private UserModel GetCurrentUser()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+
+            if(identity != null)
+            {
+                var UserClaims = identity.Claims;
+
+                return new UserModel
+                {
+                    Username = UserClaims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)?.Value,
+                    EmailAdress = UserClaims.FirstOrDefault(u => u.Type == ClaimTypes.Email)?.Value,
+                    FirstName = UserClaims.FirstOrDefault(u => u.Type == ClaimTypes.Surname)?.Value,
+                    LastName = UserClaims.FirstOrDefault(u => u.Type == ClaimTypes.GivenName)?.Value,
+                    Rol = UserClaims.FirstOrDefault(u => u.Type == ClaimTypes.Role)?.Value
+                };
+            }
+            return null;
+        }
+
+
         private UserModel Authenticate(LoginUser UserLogin)
         {
             var currentUser = UserConstants.Users.FirstOrDefault(user => user.Username.ToLower() == UserLogin.UserName.ToLower() && user.Password == UserLogin.Password);
@@ -79,5 +112,7 @@ namespace ApiJwt.Controllers
 
             return null;
         }
+
+
     }
 }
